@@ -21,18 +21,18 @@ public class Lab1JFrame extends javax.swing.JFrame {
     return Math.sin(x*x); 
     }
   
-    private double computeIntegral(double step, double lowlim, double uplim) {
+      private double computeIntegral(double step, double lowlim, double uplim) {
     if (lowlim >= uplim || step <= 0) {
-        throw new IllegalArgumentException("Некорректные параметры: lowlim < uplim, step > 0");
-    }
+        throw new IllegalArgumentException("Некорректные параметры: lowlim < uplim, step > 0");}
+    
     double sum = 0.0;
     double x = lowlim;
+    
     while (x < uplim) {
-        double nextX = x + step;
-        // Если следующая точка выходит за b — ограничиваем её значением b
-        if (nextX > uplim) {
-            nextX = uplim;
-        }
+        //Подсчет шага с учетом погрешности с помощью минимизации Math.min
+        double currentstep = Math.min(step, uplim - x);
+        double nextX = x + currentstep;
+        
         double y1 = func(x);
         double y2 = func(nextX);
         // Площадь трапеции
@@ -302,18 +302,11 @@ public class Lab1JFrame extends javax.swing.JFrame {
         
         // Проверка
         if (lowlim >= uplim) {
-            JOptionPane.showMessageDialog(this, 
-                "Нижний предел должен быть меньше верхнего предела", 
-                "Ошибка", 
-                JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Нижний предел должен быть меньше верхнего предела", "Ошибка", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
-        if (step <= 0) {
-            JOptionPane.showMessageDialog(this, 
-                "Шаг должен быть положительным числом", 
-                "Ошибка", 
-                JOptionPane.ERROR_MESSAGE);
+        if (step <= 0) {JOptionPane.showMessageDialog(this, "Шаг должен быть положительным числом", "Ошибка", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
@@ -326,7 +319,6 @@ public class Lab1JFrame extends javax.swing.JFrame {
         LowerLimitTextField.setText("");
         UpperLimitTextField.setText("");
         
-        StepTextField.requestFocus();  
     }
     catch (NumberFormatException e) {JOptionPane.showMessageDialog(this, "Введите корректные числовые значения (например: 0.1, 0, 1)", "Ошибка ввода", JOptionPane.ERROR_MESSAGE);}
     }//GEN-LAST:event_AddToTableButtonActionPerformed
