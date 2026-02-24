@@ -3,50 +3,6 @@ package com.mycompany.lab2;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import java.util.LinkedList;
-import java.util.List;
-
-class RecIntegral { 
-   // переменные таблицы
-    private double step;
-    private double upperLimit;
-    private double lowerLimit;
-    private double result;
-     // конструктор по умолчанию
-    public RecIntegral() {this.step = 0.0;
-        this.upperLimit = 0.0;
-        this.lowerLimit = 0.0;
-        this.result = 0.0;
-}
-     // Конструктор с параметрами
-    public RecIntegral(double step, double upperLimit, double lowerLimit, double result){
-        this.step = step;
-        this.upperLimit = upperLimit;
-        this.lowerLimit = lowerLimit;
-        this.result = result;
-}
-      // Конструктор без результата (для новых записей)
-    public RecIntegral(double step, double upperLimit, double lowerLimit) {
-        this.step = step;
-        this.upperLimit = upperLimit;
-        this.lowerLimit = lowerLimit;
-        this.result = 0.0;
-    }
-    
-    // геттеры и сеттеры переменных RecIntegral
-    public double getStep() { return step;}
-    public void setStep(double step) {this.step = step;}
-    public double getUpperLimit() {return upperLimit;}
-    public void setUpperLimit(double upperLimit) {this.upperLimit = upperLimit;} 
-    public double getLowerLimit() {return lowerLimit;} 
-    public void setLowerLimit(double lowerLimit) {this.lowerLimit = lowerLimit;}
-    public double getResult() {return result;}
-    public void setResult(double result) {this.result = result;}
-    
-        // Метод для преобразования в массив Object для таблицы
-    public Object[] toTableRow() {
-        return new Object[]{step, upperLimit, lowerLimit,result == 0.0 ? "" : String.format("%.5f", result)};
-    }
-}
 
 public class Lab2JFrame extends javax.swing.JFrame {
     
@@ -56,33 +12,9 @@ public class Lab2JFrame extends javax.swing.JFrame {
     public Lab2JFrame() {
         initComponents();
         setupTableFormatting();
+        setupTableListener();
         recordsList = new LinkedList<>();
     }
-
-      private double func(double x) {
-    return Math.sin(x*x); 
-    }
-  
-      private double computeIntegral(double step, double lowlim, double uplim) {
-    if (lowlim >= uplim || step <= 0) {
-        throw new IllegalArgumentException("Некорректные параметры: lowlim < uplim, step > 0");}
-    
-    double sum = 0.0;
-    double x = lowlim;
-    
-    while (x < uplim) {
-        //Подсчет шага с учетом погрешности с помощью минимизации Math.min
-        double currentstep = Math.min(step, uplim - x);
-        double nextX = x + currentstep;
-        
-        double y1 = func(x);
-        double y2 = func(nextX);
-        // Площадь трапеции
-        sum += (y1 + y2) * (nextX - x) / 2.0;
-        x = nextX;
-    }
-    return sum;
-}
       
     private void setupTableFormatting() {
     // Устанавливаем рендерер для отображения чисел
@@ -96,6 +28,86 @@ public class Lab2JFrame extends javax.swing.JFrame {
     
 }
     
+private boolean isUpdating = false; // флаг для предотвращения рекурсивного вызова ошибки
+    
+private void setupTableListener() {
+    DefaultTableModel model = (DefaultTableModel) TableModel.getModel();
+    
+    model.addTableModelListener(e -> {
+        if (isUpdating) return;
+        
+        if (e.getType() == javax.swing.event.TableModelEvent.UPDATE) {
+            int row = e.getFirstRow();
+            int column = e.getColumn();
+            
+            if (row >= 0 && column >= 0 && column <= 2 && row < recordsList.size()) {
+                isUpdating = true; 
+                try {                   
+                    RecIntegral record = recordsList.get(row);
+                    // Сохраняем старые значения для восстановления
+                    double oldStep = record.getStep();
+                    double oldUpper = record.getUpperLimit();
+                    double oldLower = record.getLowerLimit();
+                    
+                    Object newValue = model.getValueAt(row, column);
+                    if (newValue != null) {
+                        String valueStr = newValue.toString().trim().replace(',', '.');
+                        if (!valueStr.isEmpty()) {
+                            double value = Double.parseDouble(valueStr);
+                            // Валидация и обновление
+                            boolean valid = true;
+                            switch (column) {
+                                case 0: 
+                                    if (value > 0)
+                                    {record.setStep(value);} 
+                                    else {valid = false;}
+                                    break;
+                                case 1: record.setUpperLimit(value); break;
+                                case 2: record.setLowerLimit(value); break;
+                            }
+                            
+                            if (valid) {
+                                if (record.getLowerLimit() >= record.getUpperLimit()) {
+                                    JOptionPane.showMessageDialog(this, "Нижний предел должен быть меньше верхнего", "Ошибка", JOptionPane.WARNING_MESSAGE);
+                                    
+                                    // Восстанавливаем ВСЕ значения
+                                    record.setStep(oldStep);
+                                    record.setUpperLimit(oldUpper);
+                                    record.setLowerLimit(oldLower);
+                                    
+                                    // Обновляем таблицу
+                                    model.setValueAt(oldStep, row, 0);
+                                    model.setValueAt(oldUpper, row, 1);
+                                    model.setValueAt(oldLower, row, 2);
+                                } else {
+                                    record.setResult(0.0);
+                                    model.setValueAt("", row, 3);
+                                }
+                            } else {
+                                // Ошибка валидации шага
+                                JOptionPane.showMessageDialog(this, "Шаг должен быть положительным", "Ошибка", JOptionPane.WARNING_MESSAGE);
+                                
+                                // Восстанавливаем значение шага
+                                record.setStep(oldStep);
+                                model.setValueAt(oldStep, row, column);
+                            }
+                        }
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Некорректное число", "Ошибка формата", JOptionPane.ERROR_MESSAGE);
+                    // Восстанавливаем старое значение
+                    RecIntegral record = recordsList.get(row);
+                    double restoreValue = column == 0 ? record.getStep() : 
+                                        (column == 1 ? record.getUpperLimit() : record.getLowerLimit());
+                    model.setValueAt(restoreValue, row, column);
+                } finally {
+                    isUpdating = false;
+                }
+            }
+        }
+    });
+}
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -321,7 +333,7 @@ public class Lab2JFrame extends javax.swing.JFrame {
                 return;
             }
 
-            double result = computeIntegral(step, lowlim, uplim);
+             double result = RecIntegral.computeIntegral(step, lowlim, uplim);
             
             // обновляем результат в коллекции
                if (selectedRow < recordsList.size()) {
@@ -347,9 +359,10 @@ public class Lab2JFrame extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Выберите строку для удаления", "Информация", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        // получаем модель и удаляем строку
+        // получаем модель и удаляем строку из таблицы и коллекции
         DefaultTableModel model = (DefaultTableModel) TableModel.getModel();
         model.removeRow(selectedRow);
+        recordsList.remove(selectedRow);
     }//GEN-LAST:event_ClearStringButtonActionPerformed
 
     private void AddToTableButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddToTableButtonActionPerformed
@@ -408,9 +421,7 @@ public class Lab2JFrame extends javax.swing.JFrame {
 
     private void ClearTableButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ClearTableButtonActionPerformed
         DefaultTableModel model = (DefaultTableModel) TableModel.getModel();
-        
-        int rowCount = model.getRowCount();
-    for (int i = rowCount - 1; i >= 0; i--) {model.removeRow(i);}
+        model.setRowCount(0);
     }//GEN-LAST:event_ClearTableButtonActionPerformed
 
     private void FillTableButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FillTableButtonActionPerformed
