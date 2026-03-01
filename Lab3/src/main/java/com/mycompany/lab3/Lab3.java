@@ -1,10 +1,9 @@
+package com.mycompany.lab3;
 
-package com.mycompany.lab1;
-
-public class Lab1 {
+public class Lab3 {
     public static void main(String[] args) {
         java.awt.EventQueue.invokeLater(() -> {
-            new Lab1JFrame().setVisible(true);
+            new  Lab3JFrame().setVisible(true);
         });
     }
 }
