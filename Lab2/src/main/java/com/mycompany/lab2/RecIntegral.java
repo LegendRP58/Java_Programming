@@ -1,23 +1,11 @@
-package com.mycompany.lab3;
+package com.mycompany.lab2;
 
 public class RecIntegral {
-   // константы минимального/максимального значений для вводимых данных
-    public static final double MIN_VALUE = 0.000001;
-    public static final double MAX_VALUE = 1000000.0;
-
-    // Метод валидации значения
-    private static void validateValue(double value, String fieldName) throws IntegralException {
-        if (value < MIN_VALUE || value > MAX_VALUE) {
-            throw new IntegralException(String.format("Значение поля %s (%.6f) должно быть в диапазоне от %.6f до %.6f", fieldName, value, MIN_VALUE, MAX_VALUE), fieldName, value);
-        }
-    }
-    
    // переменные таблицы
     private double step;
     private double upperLimit;
     private double lowerLimit;
     private double result;
-    
      // конструктор по умолчанию
     public RecIntegral() {this.step = 0.0;
             this.upperLimit = 0.0;
@@ -33,25 +21,19 @@ public class RecIntegral {
 }
       // Конструктор без результата (для новых записей)
     public RecIntegral(double step, double upperLimit, double lowerLimit) {
-        this(step, upperLimit, lowerLimit, 0.0);
+        this.step = step;
+        this.upperLimit = upperLimit;
+        this.lowerLimit = lowerLimit;
+        this.result = 0.0;
     }
     
-    // геттеры и сеттеры переменных RecIntegral + проверка значений (валидация)
+    // геттеры и сеттеры переменных RecIntegral
     public double getStep() { return step;}
-    public void setStep(double step) throws IntegralException { 
-        validateValue(step, "Шаг");
-        this.step = step;}
-    
+    public void setStep(double step) {this.step = step;}
     public double getUpperLimit() {return upperLimit;}
-    public void setUpperLimit (double upperLimit) throws IntegralException {
-        validateValue(upperLimit, "Верхний предел");
-        this.upperLimit = upperLimit;} 
-    
+    public void setUpperLimit(double upperLimit) {this.upperLimit = upperLimit;} 
     public double getLowerLimit() {return lowerLimit;} 
-    public void setLowerLimit(double lowerLimit) throws IntegralException {
-        validateValue(lowerLimit, "Нижнний предел");
-        this.lowerLimit = lowerLimit;} 
-    
+    public void setLowerLimit(double lowerLimit) {this.lowerLimit = lowerLimit;}
     public double getResult() {return result;}
     public void setResult(double result) {this.result = result;}
     
@@ -60,12 +42,17 @@ public class RecIntegral {
         return new Object[]{step, upperLimit, lowerLimit,result == 0.0 ? "" : String.format("%.5f", result)};
     }
     
+    
     // Вычисление интеграла //
+    
       public static double func(double x) {
         return Math.sin(x*x); 
     }
   
       public static double computeIntegral(double step, double lowlim, double uplim) {
+    if (lowlim >= uplim || step <= 0) {
+        throw new IllegalArgumentException("Некорректные параметры: lowlim < uplim, step > 0");}
+    
     double sum = 0.0;
     double x = lowlim;
     

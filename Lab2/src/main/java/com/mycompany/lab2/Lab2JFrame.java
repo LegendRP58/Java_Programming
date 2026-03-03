@@ -1,15 +1,16 @@
-package com.mycompany.lab3;
+package com.mycompany.lab2;
 
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import java.util.LinkedList;
 
-public class Lab3JFrame extends javax.swing.JFrame {
+public class Lab2JFrame extends javax.swing.JFrame {
     
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Lab3JFrame.class.getName());
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Lab2JFrame.class.getName());
     private LinkedList<RecIntegral> recordsList;
+    private boolean isAddAllowed = true;
     
-    public Lab3JFrame() {
+    public Lab2JFrame() {
         initComponents();
         setupTableFormatting();
         setupTableListener();
@@ -41,8 +42,8 @@ private void setupTableListener() {
             int column = e.getColumn();
             
             if (row >= 0 && column >= 0 && column <= 2 && row < recordsList.size()) {
-                isUpdating = true;
-                try {
+                isUpdating = true; 
+                try {                   
                     RecIntegral record = recordsList.get(row);
                     // Сохраняем старые значения для восстановления
                     double oldStep = record.getStep();
@@ -54,26 +55,23 @@ private void setupTableListener() {
                         String valueStr = newValue.toString().trim().replace(',', '.');
                         if (!valueStr.isEmpty()) {
                             double value = Double.parseDouble(valueStr);
+                            // Валидация и обновление
+                            boolean valid = true;
+                            switch (column) {
+                                case 0: 
+                                    if (value > 0)
+                                    {record.setStep(value);} 
+                                    else {valid = false;}
+                                    break;
+                                case 1: record.setUpperLimit(value); break;
+                                case 2: record.setLowerLimit(value); break;
+                            }
                             
-                            try {
-                                // Валидация и обновление с использованием класса исключения
-                                switch (column) {
-                                    case 0: 
-                                        record.setStep(value);
-                                        break;
-                                    case 1: 
-                                        record.setUpperLimit(value);
-                                        break;
-                                    case 2: 
-                                        record.setLowerLimit(value);
-                                        break;
-                                }
-                                
-                                // проверка соотношения пределов
+                            if (valid) {
                                 if (record.getLowerLimit() >= record.getUpperLimit()) {
                                     JOptionPane.showMessageDialog(this, "Нижний предел должен быть меньше верхнего", "Ошибка", JOptionPane.WARNING_MESSAGE);
                                     
-                                    // Восстанавливаем значения
+                                    // Восстанавливаем ВСЕ значения
                                     record.setStep(oldStep);
                                     record.setUpperLimit(oldUpper);
                                     record.setLowerLimit(oldLower);
@@ -86,40 +84,22 @@ private void setupTableListener() {
                                     record.setResult(0.0);
                                     model.setValueAt("", row, 3);
                                 }
+                            } else {
+                                // Ошибка валидации шага
+                                JOptionPane.showMessageDialog(this, "Шаг должен быть положительным", "Ошибка", JOptionPane.WARNING_MESSAGE);
                                 
-                            } catch (IntegralException ex) {
-                                // Обработка исключения при редактировании ячейки
-                                String fieldName = "";
-                                double restoreValue = 0;
-                                
-                                switch (column) {
-                                    case 0: 
-                                        fieldName = "Шаг";
-                                        restoreValue = oldStep;
-                                        break;
-                                    case 1: 
-                                        fieldName = "Верхний предел";
-                                        restoreValue = oldUpper;
-                                        break;
-                                    case 2: 
-                                        fieldName = "Нижний предел";
-                                        restoreValue = oldLower;
-                                        break;
-                                }
-                                
-                                JOptionPane.showMessageDialog(this,String.format("Некорректное значение для поля '%s': %.6f\n\n" +"Значение должно быть в диапазоне от %.6f до %.6f",
-                                        fieldName, value, RecIntegral.MIN_VALUE, RecIntegral.MAX_VALUE),"Ошибка валидации",JOptionPane.WARNING_MESSAGE);                        
-                                // Восстанавливаем старое значение
-                                model.setValueAt(restoreValue, row, column);
+                                // Восстанавливаем значение шага
+                                record.setStep(oldStep);
+                                model.setValueAt(oldStep, row, column);
                             }
                         }
                     }
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(this, "Некорректное число", "Ошибка формата", JOptionPane.ERROR_MESSAGE);
-                    
                     // Восстанавливаем старое значение
                     RecIntegral record = recordsList.get(row);
-                    double restoreValue = column == 0 ? record.getStep() : (column == 1 ? record.getUpperLimit() : record.getLowerLimit());
+                    double restoreValue = column == 0 ? record.getStep() : 
+                                        (column == 1 ? record.getUpperLimit() : record.getLowerLimit());
                     model.setValueAt(restoreValue, row, column);
                 } finally {
                     isUpdating = false;
@@ -250,7 +230,7 @@ private void setupTableListener() {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(UpperLimitTextField))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addGap(0, 59, Short.MAX_VALUE)
+                        .addGap(0, 71, Short.MAX_VALUE)
                         .addComponent(jLabel1))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -273,7 +253,7 @@ private void setupTableListener() {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(50, 50, 50)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addContainerGap(32, Short.MAX_VALUE))
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -307,17 +287,11 @@ private void setupTableListener() {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -393,6 +367,11 @@ private void setupTableListener() {
     }//GEN-LAST:event_ClearStringButtonActionPerformed
 
     private void AddToTableButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddToTableButtonActionPerformed
+        if(!isAddAllowed){
+           JOptionPane.showMessageDialog(this, "Заполните таблицу перед добавлением новых элементов.", "Ошибка", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
         try {
             String stepText = StepTextField.getText().trim().replace(',', '.');  // Поддержка запятой
             String lowlimText = LowerLimitTextField.getText().trim().replace(',', '.');
@@ -406,36 +385,28 @@ private void setupTableListener() {
             double step = Double.parseDouble(stepText);
             double lowlim = Double.parseDouble(lowlimText);
             double uplim = Double.parseDouble(uplimText);
-            
-            // Проверка диапазона значений (0.000001 до 1000000)
-           if (step < RecIntegral.MIN_VALUE || step > RecIntegral.MAX_VALUE || lowlim < RecIntegral.MIN_VALUE || lowlim > RecIntegral.MAX_VALUE || uplim < RecIntegral.MIN_VALUE || uplim > RecIntegral.MAX_VALUE) {
-               String message = String.format( "Значения должны быть в диапазоне от %.6f до %.6f\n\n" + "Введенные значения:\n" + "Шаг: %.6f\n" + "Нижний предел: %.6f\n" + "Верхний предел: %.6f",
-                   RecIntegral.MIN_VALUE, RecIntegral.MAX_VALUE, step, lowlim, uplim);
-               
-               JOptionPane.showMessageDialog(this, message, "Ошибка валидации", JOptionPane.WARNING_MESSAGE);
-               return;
-           }
 
-           // Создаем объект (конструктор без исключений)
-           RecIntegral record = new RecIntegral(step, uplim, lowlim);
+            if (lowlim >= uplim) {
+                JOptionPane.showMessageDialog(this, "Нижний предел должен быть меньше верхнего предела", "Ошибка", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            if (step <= 0) {JOptionPane.showMessageDialog(this, "Шаг должен быть положительным числом", "Ошибка", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
 
-           // добавляем в список
-           recordsList.add(record);
-           // добавление в таблицу
-           DefaultTableModel model = (DefaultTableModel) TableModel.getModel();
-           model.addRow(record.toTableRow());
-
-           // Очищаем поля
-           StepTextField.setText("");
-           LowerLimitTextField.setText("");
-           UpperLimitTextField.setText("");
-
-       } catch (NumberFormatException e) {
-           JOptionPane.showMessageDialog(this, 
-               "Введите корректные числовые значения (например: 0.1, 0.5, 1.0)", 
-               "Ошибка ввода", 
-               JOptionPane.ERROR_MESSAGE);
-       }
+         // объявление объекта для списка
+         RecIntegral record = new RecIntegral(step, uplim, lowlim);
+         // добавляем в список
+         recordsList.add(record);
+         // добавление в таюлицу
+         DefaultTableModel model = (DefaultTableModel) TableModel.getModel();
+         model.addRow(record.toTableRow());
+            // Очищаем поля
+            StepTextField.setText("");
+            LowerLimitTextField.setText("");
+            UpperLimitTextField.setText("");
+        }
+        catch (NumberFormatException e) {JOptionPane.showMessageDialog(this, "Введите корректные числовые значения (например: 0.1, 0, 1)", "Ошибка ввода", JOptionPane.ERROR_MESSAGE);}
     }//GEN-LAST:event_AddToTableButtonActionPerformed
 
     private void StepTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_StepTextFieldActionPerformed
@@ -457,6 +428,7 @@ private void setupTableListener() {
     private void ClearTableButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ClearTableButtonActionPerformed
         DefaultTableModel model = (DefaultTableModel) TableModel.getModel();
         model.setRowCount(0);
+        isAddAllowed = false;
     }//GEN-LAST:event_ClearTableButtonActionPerformed
 
     private void FillTableButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FillTableButtonActionPerformed
@@ -472,6 +444,7 @@ private void setupTableListener() {
         for (RecIntegral record : recordsList) {
             model.addRow(record.toTableRow());
         }
+        isAddAllowed = true;
     }//GEN-LAST:event_FillTableButtonActionPerformed
 
     public static void main(String args[]) {
@@ -485,7 +458,7 @@ private void setupTableListener() {
         }   
         catch (Exception e) {
         }
-         java.awt.EventQueue.invokeLater(() -> new Lab3JFrame().setVisible(true));
+         java.awt.EventQueue.invokeLater(() -> new Lab2JFrame().setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
