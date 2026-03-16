@@ -1,9 +1,13 @@
 package com.mycompany.lab4;
 
 import java.io.Serializable;
+import java.io.Externalizable;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.io.IOException;
 import com.google.gson.annotations.SerializedName;
 
-public class RecIntegral implements Serializable {
+public class RecIntegral implements Externalizable  {  //implements Externalizable implements Serializable
     private static final long serialVersionUID = 1L; // для версионирования
     
    // константы минимального/максимального значений для вводимых данных
@@ -79,16 +83,14 @@ public class RecIntegral implements Serializable {
     FileManager.validateValues(this.step, this.upperLimit, this.lowerLimit);
     if (this.lowerLimit >= this.upperLimit) {
         throw new IntegralException(
-            String.format("Нижний предел (%.6f) должен быть меньше верхнего (%.6f)", 
-                this.lowerLimit, this.upperLimit));
+            String.format("Нижний предел (%.6f) должен быть меньше верхнего (%.6f)", this.lowerLimit, this.upperLimit));
     }
     if (this.step <= 0) {
         throw new IntegralException("Шаг должен быть положительным числом");
     }
     if (this.step > this.upperLimit - this.lowerLimit) {
         throw new IntegralException(
-            String.format("Шаг (%.6f) больше разницы пределов (%.6f)", 
-                this.step, this.upperLimit - this.lowerLimit));
+            String.format("Шаг (%.6f) больше разницы пределов (%.6f)", this.step, this.upperLimit - this.lowerLimit));
     }
 }
       
@@ -109,4 +111,25 @@ public class RecIntegral implements Serializable {
     }
     return sum;
 }
+//      ---Externalizable---
+      
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeDouble(step);
+        out.writeDouble(upperLimit);
+        out.writeDouble(lowerLimit);
+        out.writeDouble(result);
+    }
+    
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        step = in.readDouble();
+        upperLimit = in.readDouble();
+        lowerLimit = in.readDouble();
+        result = in.readDouble();
+        
+        try {
+            validate();
+        } catch (IntegralException e) {
+            throw new IOException("Ошибка валидации загруженных данных: " + e.getMessage(), e);
+        }
+    }
 }
