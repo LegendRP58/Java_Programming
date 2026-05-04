@@ -1,0 +1,60 @@
+TCP client connected to server
+TCP client received task: IntegralTask{clientId=0, step=1,000000, segment=[10,000000, 20,000000]} (segment: 10.0 to 40.0)
+TCP client 0 finished computation in 3.7778 ms
+TCP client connected to server
+TCP client received task: IntegralTask{clientId=0, step=1,000000, segment=[10,000000, 32,500000]} (segment: 10.0 to 55.0)
+TCP client 0 finished computation in 3.1118 ms
+TCP client connected to server
+TCP client received task: IntegralTask{clientId=0, step=1,000000, segment=[10,000000, 32,500000]} (segment: 10.0 to 55.0)
+TCP client 0 finished computation in 3.4892 ms
+TCP client connected to server
+TCP client received task: IntegralTask{clientId=0, step=1,000000, segment=[10,000000, 15,625000]} (segment: 10.0 to 32.5)
+TCP client 0 finished computation in 10.8367 ms
+TCP client connected to server
+TCP client received task: IntegralTask{clientId=0, step=1,000000, segment=[10,000000, 20,000000]} (segment: 10.0 to 40.0)
+TCP client 0 finished computation in 4.4949 ms
+TCP client connected to server
+TCP client received task: IntegralTask{clientId=0, step=1,000000, segment=[10,000000, 32,500000]} (segment: 10.0 to 55.0)
+TCP client 0 finished computation in 3.6023 ms
+TCP client connected to server
+TCP client received task: IntegralTask{clientId=0, step=1,000000, segment=[10,000000, 100,000000]} (segment: 10.0 to 100.0)
+TCP client 0 finished computation in 3.4799 ms
+TCP client connected to server
+TCP client received task: IntegralTask{clientId=0, step=1,000000, segment=[10,000000, 32,500000]} (segment: 10.0 to 55.0)
+TCP client 0 finished computation in 3.1894 ms
+TCP client connected to server
+TCP client received task: IntegralTask{clientId=0, step=1,000000, segment=[10,000000, 100,000000]} (segment: 10.0 to 100.0)
+TCP client 0 finished computation in 3.1001 ms
+TCP client connected to server
+TCP client received task: IntegralTask{clientId=0, step=1,000000, segment=[10,000000, 32,500000]} (segment: 10.0 to 55.0)
+TCP client 0 finished computation in 3.2915 ms
+TCP client connected to server
+TCP client received task: IntegralTask{clientId=0, step=1,000000, segment=[10,000000, 20,000000]} (segment: 10.0 to 40.0)
+TCP client 0 finished computation in 4.2804 ms
+TCP client connected to server
+TCP client received task: IntegralTask{clientId=0, step=1,000000, segment=[10,000000, 20,000000]} (segment: 10.0 to 40.0)
+TCP client 0 finished computation in 4.982 ms
+TCP client connected to server
+TCP client received task: IntegralTask{clientId=0, step=12,000000, segment=[1234,000000, 31786,000000]} (segment: 1234.0 to 62338.0)
+TCP client 0 finished computation in 5.3311 ms
+TCP client connected to server
+TCP client received task: IntegralTask{clientId=0, step=12,000000, segment=[1234,000000, 123432,000000]} (segment: 1234.0 to 123432.0)
+TCP client 0 finished computation in 5.467 ms
+TCP client connected to server
+TCP client received task: IntegralTask{clientId=0, step=12,000000, segment=[1234,000000, 1540,000000]} (segment: 1234.0 to 7354.0)
+TCP client 0 finished computation in 71.2893 ms
+TCP client connected to server
+TCP client received task: IntegralTask{clientId=0, step=12,000000, segment=[1234,000000, 31786,000000]} (segment: 1234.0 to 62338.0)
+TCP client 0 finished computation in 4.986 ms
+TCP client connected to server
+TCP client received task: IntegralTask{clientId=0, step=12,000000, segment=[12345,000000, 24693,000000]} (segment: 12345.0 to 49389.0)
+TCP client 0 finished computation in 8.6381 ms
+TCP client connected to server
+TCP client received task: IntegralTask{clientId=0, step=1,000000, segment=[12,000000, 40,000000]} (segment: 12.0 to 68.0)
+TCP client 0 finished computation in 2.9879 ms
+TCP client connected to server
+TCP client received task: IntegralTask{clientId=0, step=1,000000, segment=[12,000000, 88,500000]} (segment: 12.0 to 318.0)
+TCP client 0 finished computation in 23.5736 ms
+TCP client connected to server
+TCP client received task: IntegralTask{clientId=0, step=1,000000, segment=[12,000000, 88,500000]} (segment: 12.0 to 318.0)
+TCP client 0 finished computation in 14.0495 ms
